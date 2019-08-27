@@ -263,9 +263,9 @@
             config["password"] = data[5]
             config["method"] = data[3]
             config["protocol"] = data[2]
-            config["protocolparam"] = base64.decode(data[6]['protoparam'])
+            config["protocolparam"] = data[6]['protoparam']
             config["obfs"] = data[4]
-            config["obfsparam"] = base64.decode(data[6]['obfsparam'])
+            config["obfsparam"] = data[6]['obfsparam']
             config["remarks_base64"] = data[6]['remarks_base64']
             config["group"] = data[6]['group']
             config["enable"] = true
