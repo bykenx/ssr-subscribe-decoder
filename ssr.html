@@ -215,13 +215,17 @@
             for (var i = 0; i < depthCount; i++) {
               res += tab
             }
-            // console.log("\"", res, "\"")
             return res
           }
           start:
           while (true) {
             key = keys.shift()
             switch (key) {
+            case '%':
+              // 转义字符自动跳过
+              key = keys.shift()
+              result += key
+              break
             case '[':
               result += '\n'
               result += appendTab()
@@ -265,7 +269,9 @@
             config["protocol"] = data[2]
             config["protocolparam"] = data[6]['protoparam']
             config["obfs"] = data[4]
-            config["obfsparam"] = data[6]['obfsparam']
+            // fix: remove space or '\n'
+            config["obfsparam"] = (data[6]['obfsparam'] + '').replace(/\s/g, '').replace(/([,\[\]\{\}%])/g, '%$1')
+            console.log('"' + config["obfsparam"] + '"')
             config["remarks_base64"] = data[6]['remarks_base64']
             config["group"] = data[6]['group']
             config["enable"] = true
