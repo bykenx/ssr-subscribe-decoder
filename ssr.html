@@ -58,7 +58,7 @@
         border-bottom: dashed 1px #ccc;
       }
       .server-config > li:last-of-type { border-bottom: 0 }
-      .server-config > li span { padding-left: 5px }
+      .server-config > li span { padding: 0 5px }
       .server-config > li span:first-child {
         width: 80px;
         display: inline-block;
@@ -114,11 +114,17 @@
         button_func_previewresult = document.querySelector('#preview-result') 
 
         var _results = []
+        var _b64_format_re = /^(S{2}R:\/\/)[A-Z0-9_\-]+$/i
+        function validB64Format(str) {
+          return _b64_format_re.test(str)
+        }
         function handleResults() {
           var contents = []
           for (var idx = 0; idx < _results.length; idx++) {
-            var content = "<h3>" + (idx+1) + "</h3>" +"<ul class=\"server-config\">"
-            data = _results[idx]
+            var data = _results[idx]
+            var content = "<h3>" + (idx+1) + "</h3>" 
+            content += "<a href=\"" + data[7] + "\">直接导入（可能无效）</a>"
+            content += "<ul class=\"server-config\">"
             content += "<li><span>地址</span><span>" + data[0] + "</span></li>"
             content += "<li><span>端口</span><span>" + data[1] + "</span></li>"
             content += "<li><span>加密方法</span><span>" + data[3] + "</span></li>"
@@ -136,27 +142,34 @@
           panel_results.innerHTML = content
         }
         function trans () {
-          var results = panel_source.value
-          if (!results.startsWith('ssr')) {
+          var results = []
+          var data = (panel_source.value || '').trim()
+          if (!data.startsWith('ssr')) {
             try {
-              results = base64.url_safe_decode(results).trim()
-              var tmp = results.split('\n')
-
-              panel_source.value = results
+              data = base64.url_safe_decode(data).trim()
             } catch (err) {
               console.log('decode error')
               return
             }
           }
-          if ("" == results.trim()) {
+          if ("" == data) {
             _results = []
             handleResults()
             return
           }
-          results = results.split("\n")
+          results = data.split("\n")
+          // valid format
+          for (var i = 0; i < results.length; i ++) {
+            if (!validB64Format(results[i])) {
+              alert('请粘贴有效的数据')
+              return;
+            }
+          }
+          // echo
+          panel_source.value = data
           results = results.map(function (e) {
-            e = e.trim().split("/")[2]
-            var res = base64.url_safe_decode(e, true).split(':')
+            var item = e.trim().split("/")[2]
+            var res = base64.url_safe_decode(item, true).split(':')
             var tmp = res[res.length-1].split('/')
             res[res.length-1] = base64.url_safe_decode(tmp[0], true)
             tmp = tmp[1].replace('?', '').split('&')
@@ -185,6 +198,7 @@
               }
             }
             res.push(addon)
+            res.push(e)
             return res
           })
           _results = results
@@ -212,7 +226,6 @@
             config["obfs"] = data[4]
             // fix: remove space or '\n'
             config["obfsparam"] = (data[6]['obfsparam'] + '').replace(/\s/g, '').replace(/([,\[\]\{\}%])/g, '%$1')
-            console.log('"' + config["obfsparam"] + '"')
             config["remarks_base64"] = data[6]['remarks_base64']
             config["group"] = data[6]['group']
             config["enable"] = true
