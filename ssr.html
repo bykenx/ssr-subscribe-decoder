@@ -78,7 +78,6 @@
              class="input input-multi" id="data-source"></textarea>
             </div>
           <div class="line">
-            <!-- <a class="button" id="reset">还原配置</a> -->
             <a class="button" id="clear">清空</a>
           </div>
           <div class="line">
@@ -197,64 +196,6 @@
           trans()
           ev.preventDefault()
         })
-        function simple_json_format(source, transtab2space) {
-          var tab = transtab2space? '  ' : '\t',
-            depthCount = 0,
-            result = "",
-            keys = source.split("")
-          function appendTab () {
-            depthCount += 1
-            return normalTab()
-          }
-          function popTab () {
-            depthCount -= 1
-            return normalTab()
-          }
-          function normalTab() {
-            var res = ""
-            for (var i = 0; i < depthCount; i++) {
-              res += tab
-            }
-            return res
-          }
-          start:
-          while (true) {
-            key = keys.shift()
-            switch (key) {
-            case '%':
-              // 转义字符自动跳过
-              key = keys.shift()
-              result += key
-              break
-            case '[':
-              result += '\n'
-              result += appendTab()
-              result += key
-              break
-            case '{':
-              result += key + '\n'
-              result += appendTab()
-              break
-            case ',':
-              result += key + '\n'
-              result += normalTab()
-              break
-            case '}':
-              result += '\n'
-              result += popTab()
-              result += key
-              break
-            case ']':
-              result += key
-              break
-            case undefined:
-              break start
-            default:
-              result += key
-            }
-          }
-          return result
-        }
         function _createConfig () {
           var configs = []
           for (var i = 0; i < _results.length; i++) {
@@ -278,7 +219,7 @@
             config["udp_over_tcp"] = false
             configs.push(config)
           }
-          return simple_json_format(JSON.stringify({"configs": configs}), true)
+          return JSON.stringify({"configs": configs}, null, '  ')
         }
         button_func_previewresult.addEventListener('click', function () {
           
